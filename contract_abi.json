@@ -1,0 +1,504 @@
+[
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "username",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "challengetype",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "completions",
+				"type": "uint256"
+			}
+		],
+		"name": "ChallengeCompleted",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "username",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "challengetype",
+				"type": "uint256"
+			}
+		],
+		"name": "ChallengeEnrolled",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "username",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "challengetype",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newtier",
+				"type": "uint256"
+			}
+		],
+		"name": "ChallengeTierDemoted",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "username",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "challengetype",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newtier",
+				"type": "uint256"
+			}
+		],
+		"name": "ChallengeTierPromoted",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "new_owner",
+				"type": "address"
+			}
+		],
+		"name": "OwnerChanged",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "newServerPublicKey",
+				"type": "string"
+			}
+		],
+		"name": "PublicKeyChanged",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "username",
+				"type": "string"
+			}
+		],
+		"name": "UserReassociated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "username",
+				"type": "string"
+			}
+		],
+		"name": "UserRegistered",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "new_party",
+				"type": "address"
+			}
+		],
+		"name": "addToVerifiedParties",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "challenges",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "tier1",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "tier2",
+				"type": "bool"
+			},
+			{
+				"internalType": "bool",
+				"name": "tier3",
+				"type": "bool"
+			},
+			{
+				"internalType": "uint32",
+				"name": "currentstreak",
+				"type": "uint32"
+			},
+			{
+				"internalType": "uint32",
+				"name": "longeststreak",
+				"type": "uint32"
+			},
+			{
+				"internalType": "uint32",
+				"name": "currentstreakgap",
+				"type": "uint32"
+			},
+			{
+				"internalType": "uint64",
+				"name": "totalTier1Completions",
+				"type": "uint64"
+			},
+			{
+				"internalType": "uint64",
+				"name": "totalTier2Completions",
+				"type": "uint64"
+			},
+			{
+				"internalType": "uint64",
+				"name": "totalTier3Completions",
+				"type": "uint64"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lastSubmissionDate",
+				"type": "uint256"
+			},
+			{
+				"internalType": "enum VigourHall.ChallengeType",
+				"name": "challengeType",
+				"type": "uint8"
+			},
+			{
+				"internalType": "string",
+				"name": "userdata_cid",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "new_owner",
+				"type": "address"
+			}
+		],
+		"name": "changeOwner",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "newServerPublicKey",
+				"type": "string"
+			}
+		],
+		"name": "changePublicKey",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_username",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "challengetype",
+				"type": "uint256"
+			}
+		],
+		"name": "enrollInChallenge",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "username",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "challengetype",
+				"type": "uint256"
+			}
+		],
+		"name": "getPromotion",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_username",
+				"type": "string"
+			}
+		],
+		"name": "numberOfEnrolledChallenges",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_username",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_securehash",
+				"type": "string"
+			},
+			{
+				"internalType": "address",
+				"name": "new_address",
+				"type": "address"
+			}
+		],
+		"name": "reassociateUser",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_username",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_securehash",
+				"type": "string"
+			}
+		],
+		"name": "registerUser",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalusers",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "username",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "challengetype",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "newCompletionsnum",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "continueStreak",
+				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "streaknumber",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "data_url",
+				"type": "string"
+			}
+		],
+		"name": "updateUserChallengesState",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "usernames",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"name": "users",
+		"outputs": [
+			{
+				"internalType": "address payable",
+				"name": "user_address",
+				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "username",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "securehash",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "verifiedParties",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
