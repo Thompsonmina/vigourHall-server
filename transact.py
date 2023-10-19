@@ -16,6 +16,19 @@ private_key = os.getenv("PRIVATE_KEY")
 account = Account.from_key(private_key)
 
 
+def get_challenge_verification_values(challenge_types, contract_address, abi):
+    contract = w3.eth.contract(address=contract_address, abi=abi)
+    verification_values_holder = {}
+    for challenge_type in challenge_types:
+        tier1, tier2, tier3 = contract.functions.ChallengeTierCompletionParameters(challenge_type).call()
+        verification_values_holder[challenge_type] = {"tier1": tier1, "tier2": tier2, "tier3": tier3}
+
+    return verification_values_holder
+
+values = get_challenge_verification_values([1,2,3], "0xE0e53044Eeb8Ac2d08Dc092cc09879E408dC133B", json.load(open("contract_abi.json")))
+# print(values)
+# exit()
+
 
 def submit_completed_challenges(abi, contract_address, username, challengetype, newCompletionsnum, continueStreak, streaknumber, data_url=""):
 
