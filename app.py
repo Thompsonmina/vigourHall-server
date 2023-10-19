@@ -1,6 +1,6 @@
 import os
 
-from verifier import generate_code_verifier, generate_code_challenge, generate_state
+from fitbit import generate_code_verifier, generate_code_challenge, generate_state
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -60,6 +60,12 @@ def get_tokens():
     else:
         print("Failed:", response.status_code, response.json())
         return jsonify({'error': response.json()}), response.status_code
+
+
+@app.route("/fetch_and_submit_to_contract", methods=["POST"])
+def fetch_and_submit_to_contract():
+    pass
+
 
 if __name__ == '__main__':
     app.run(debug=True)

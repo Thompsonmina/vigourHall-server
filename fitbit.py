@@ -2,6 +2,7 @@ import secrets
 import hashlib
 import base64
 import requests
+from collections import defaultdict
 
 
 fitbit_base_url = "https://api.fitbit.com/1/user/-/";
@@ -43,7 +44,7 @@ def get_body_fat(access_token, startdate, enddate):
     # Ensure the response is successful before decoding JSON
     response.raise_for_status()
 
-    return response.json()
+    return {k["date"]: k["fat"] for k in response.json()["fat"] }
 
 def get_water_consumption(access_token, startdate, enddate):
     resource_url = f"{fitbit_base_url}/foods/log/water/date/{startdate}/{enddate}.json/"
@@ -59,7 +60,7 @@ def get_water_consumption(access_token, startdate, enddate):
     # Ensure the response is successful before decoding JSON
     response.raise_for_status()
 
-    return response.json()
+    return {k["dateTime"]: k["value"] for k in response.json()["foods-log-water"] }
 
 
 def get_sleep(access_token, startdate, enddate):
@@ -76,7 +77,7 @@ def get_sleep(access_token, startdate, enddate):
     # Ensure the response is successful before decoding JSON
     response.raise_for_status()
 
-    return response.json()
+    return {k["endTime"]: k["minutesAsleep"] for k in response.json()["sleep"]}
 
 def get_steps(access_token, startdate, enddate):
     resource_url = f"{fitbit_base_url}/activities/steps/date/{startdate}/{enddate}.json"
@@ -90,29 +91,42 @@ def get_steps(access_token, startdate, enddate):
     response = requests.get(resource_url, headers=headers)
     response.raise_for_status()
 
-    return response.json()
+    return {k["dateTime"]: k["value"] for k in response.json()["activities-steps"] }
 
 
-def activeness(access_token, startdate, enddate):
-    resource_url = f"{fitbit_base_url}/activities/minutesSedentary/date/{startdate}/{enddate}.json"
-
+def get_activeness(access_token, startdate, enddate):
+    
     headers = {
         'Content-Type': 'application/json',
         'Authorization': f'Bearer {access_token}',
         'Accept': 'application/json'
     }
+    activeness = {"minutesLightlyActive": 0, "minutesFairlyActive": 0, "minutesVeryActive": 0}
 
-    response = requests.get(resource_url, headers=headers)
-    response.raise_for_status()
+    for active_type in activeness:
+        resource_url = f"{fitbit_base_url}/activities/{active_type}/date/{startdate}/{enddate}.json"
+        response = requests.get(resource_url, headers=headers)
+        response.raise_for_status()
+        activeness[active_type] = response.json()
 
-    return response.json()
+
+    sum_entry = defaultdict(int)
+    for active_type, lst in activeness.items():
+        for entry in activeness[active_type]["activities-" + active_type]:
+            sum_entry[entry["dateTime"]] = int(entry["value"]) + sum_entry[entry["dateTime"]]
+
+    return sum_entry
 
 
 access_token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM1I4WkwiLCJzdWIiOiJCUVZIWDMiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJyc29jIHJhY3QgcnNldCBybG9jIHJ3ZWkgcmhyIHJwcm8gcm51dCByc2xlIiwiZXhwIjoxNjk3NzM3NDAyLCJpYXQiOjE2OTc3MDg2MDJ9.xzrAN7cn0rpDrFnZlpxVN7y5vtR_2-vVSmsM-URYOQU"
-result = get_body_fat(access_token, '2023-10-01', '2023-10-19')
-result = get_water_consumption(access_token, '2023-10-01', '2023-10-19')
+result = get_sleep(access_token, '2023-10-01', '2023-10-19')
+# result = get_water_consumption(access_token, '2023-10-01', '2023-10-19')
 print(result)
 
-result = get_steps(access_token, '2023-10-01', '2023-10-19')
-print(result)
+# result = get_steps(access_token, '2023-10-01', '2023-10-19')
+# print(result)
+
+# result = get_activeness(access_token, '2023-10-01', '2023-10-19')
+# print(result)
+
 
