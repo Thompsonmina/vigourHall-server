@@ -26,6 +26,9 @@ def generate_state() -> str:
     return secrets.token_urlsafe(16)  # Generates a 16-byte long URL-safe text string
 
 
+# def is_valid_bodyfat_completion(value, tier, tier_completion_value):
+#     if tier 
+
 def get_body_fat(access_token, startdate, enddate):
     resource_url = f"{fitbit_base_url}/body/log/fat/date/{startdate}/{enddate}.json/"
 
@@ -75,8 +78,41 @@ def get_sleep(access_token, startdate, enddate):
 
     return response.json()
 
+def get_steps(access_token, startdate, enddate):
+    resource_url = f"{fitbit_base_url}/activities/steps/date/{startdate}/{enddate}.json"
 
-access_token = ""
-get_body_fat(access_token, '2023-10-01', '2023-10-19')
-get_water_consumption(access_token, '2023-10-01', '2023-10-19')
-get_sleep(access_token, '2023-10-01', '2023-10-19')
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+        'Accept': 'application/json'
+    }
+
+    response = requests.get(resource_url, headers=headers)
+    response.raise_for_status()
+
+    return response.json()
+
+
+def activeness(access_token, startdate, enddate):
+    resource_url = f"{fitbit_base_url}/activities/minutesSedentary/date/{startdate}/{enddate}.json"
+
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+        'Accept': 'application/json'
+    }
+
+    response = requests.get(resource_url, headers=headers)
+    response.raise_for_status()
+
+    return response.json()
+
+
+access_token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM1I4WkwiLCJzdWIiOiJCUVZIWDMiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJyc29jIHJhY3QgcnNldCBybG9jIHJ3ZWkgcmhyIHJwcm8gcm51dCByc2xlIiwiZXhwIjoxNjk3NzM3NDAyLCJpYXQiOjE2OTc3MDg2MDJ9.xzrAN7cn0rpDrFnZlpxVN7y5vtR_2-vVSmsM-URYOQU"
+result = get_body_fat(access_token, '2023-10-01', '2023-10-19')
+result = get_water_consumption(access_token, '2023-10-01', '2023-10-19')
+print(result)
+
+result = get_steps(access_token, '2023-10-01', '2023-10-19')
+print(result)
+
