@@ -1,6 +1,13 @@
 import os
 
-from fitbit import generate_code_verifier, generate_code_challenge, generate_state
+from fitbit import (generate_code_verifier, generate_code_challenge, generate_state,
+                     get_sleep, get_water_consumption, get_body_fat, get_steps, get_activeness,
+                     get_completed_challenge_entries_and_streaks
+)
+
+from vigour_contract_interactions import (get_challenge_verification_values, 
+                                          submit_completed_challenges, CHALLENGE_MAPPING
+)
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -62,9 +69,78 @@ def get_tokens():
         return jsonify({'error': response.json()}), response.status_code
 
 
+
+
 @app.route("/fetch_and_submit_to_contract", methods=["POST"])
 def fetch_and_submit_to_contract():
-    pass
+    
+    scopes = request.json['scopes']
+    enrolled_challenges = request.json['enrolled_challenges']
+    user_tier = request.json['user_tier']
+    username = request.json['username']
+    access_token = request.json['access_token']
+    contract_address = request.json['contract_address']
+    abi = request.json['abi']
+    
+    # actual_challenges = [
+    # ]
+    # Get the data from Fitbit
+    if not enrolled_challenges:
+        return jsonify({"message": "No challenges enrolled, No action performed"}), 200
+    
+    enrolled_challenges_int = [CHALLENGE_MAPPING[challenge["type"]] for challenge in enrolled_challenges]   
+    verification_values = get_challenge_verification_values(enrolled_challenges_int, contract_address, abi)
+    # print(enrolled_challenges_int)
+    
+    for challenge in enrolled_challenges:
+        if challenge["type"] == "sleep":
+            try:
+                sleep_data = get_sleep(access_token, challenge["start_duration"], challenge["end_duration"])
+                print(sleep_data)
+            except:
+                return jsonify({"message": "Encountered a problem fetching sleep data"}), 400
+
+            completions, streaks = get_completed_challenge_entries_and_streaks(sleep_data, verification_values[CHALLENGE_MAPPING[challenge["type"]]]["tier"], challenge["start_duration"], challenge["end_duration"])
+            print(completions, streaks)
+        elif challenge["type"] == "water":
+            try:
+                water_data = get_water_consumption(access_token, challenge["start_duration"], challenge["end_duration"])
+                print(water_data)
+            except:
+                return jsonify({"message": "Encountered a problem fetching water data"}), 400
+            
+            completions, streaks = get_completed_challenge_entries_and_streaks(water_data, verification_values[CHALLENGE_MAPPING[challenge["type"]]]["tier"], challenge["start_duration"], challenge["end_duration"])
+            print(completions, streaks)
+
+        elif challenge["type"] == "bodyfat":
+            try:
+                body_fat_data = get_body_fat(access_token, challenge["start_duration"], challenge["end_duration"])
+                print(body_fat_data)
+            except:
+                return jsonify({"message": "Encountered a problem fetching body fat data"}), 400
+            
+            completions, streaks = get_completed_challenge_entries_and_streaks(body_fat_data, verification_values[CHALLENGE_MAPPING[challenge["type"]]]["tier"], challenge["start_duration"], challenge["end_duration"])
+            print(completions, streaks)
+
+        elif challenge["type"] == "steps":
+            try:    
+                steps_data = get_steps(access_token, challenge["start_duration"], challenge["end_duration"])
+                print(steps_data)
+            except:
+                return jsonify({"message": "Encountered a problem fetching steps data"}), 400
+            
+            completions, streaks = get_completed_challenge_entries_and_streaks(steps_data, verification_values[CHALLENGE_MAPPING[challenge["type"]]]["tier"], challenge["start_duration"], challenge["end_duration"])
+            print(completions, streaks)
+
+        elif challenge["type"] == "activity":
+            try:
+                activeness_data = get_activeness(access_token, challenge["start_duration"], challenge["end_duration"])
+                print(activeness_data)
+            except:
+                return jsonify({"message": "Encountered a problem fetching activeness data"}), 400  
+            
+            completions, streaks = get_completed_challenge_entries_and_streaks(activeness_data, verification_values[CHALLENGE_MAPPING[challenge["type"]]]["tier"], challenge["start_duration"], challenge["end_duration"])
+            print(completions, streaks)
 
 
 if __name__ == '__main__':

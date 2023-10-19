@@ -15,6 +15,7 @@ w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 private_key = os.getenv("PRIVATE_KEY")
 account = Account.from_key(private_key)
 
+CHALLENGE_MAPPING = {"water": 1, "sleep": 2, "bodyfat": 3, "steps": 4, "activity": 5}
 
 def get_challenge_verification_values(challenge_types, contract_address, abi):
     contract = w3.eth.contract(address=contract_address, abi=abi)
@@ -25,7 +26,7 @@ def get_challenge_verification_values(challenge_types, contract_address, abi):
 
     return verification_values_holder
 
-values = get_challenge_verification_values([1,2,3], "0xE0e53044Eeb8Ac2d08Dc092cc09879E408dC133B", json.load(open("contract_abi.json")))
+# values = get_challenge_verification_values([1,2,3], "0xE0e53044Eeb8Ac2d08Dc092cc09879E408dC133B", json.load(open("contract_abi.json")))
 # print(values)
 # exit()
 
