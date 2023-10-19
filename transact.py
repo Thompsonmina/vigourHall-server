@@ -17,7 +17,6 @@ account = Account.from_key(private_key)
 
 
 
-
 def submit_completed_challenges(abi, contract_address, username, challengetype, newCompletionsnum, continueStreak, streaknumber, data_url=""):
 
     vigour_contract = w3.eth.contract(address=contract_address, abi=abi)
