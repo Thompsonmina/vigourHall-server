@@ -136,9 +136,6 @@ def generate_date_range(start_date_str, end_date_str):
 
     return date_list
 
-# print(generate_date_range("2023-09-25", "2023-10-19"))
-# exit()
-
 def get_completed_challenge_entries_and_streaks(activity_data, verification_value, start_date, end_date):
     completed_num = 0
     streak_num = 0
@@ -151,15 +148,22 @@ def get_completed_challenge_entries_and_streaks(activity_data, verification_valu
 
     return completed_num, streak_num
 
-access_token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM1I4WkwiLCJzdWIiOiJCUVZIWDMiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJyc29jIHJzZXQgcmFjdCBybG9jIHJ3ZWkgcmhyIHJwcm8gcm51dCByc2xlIiwiZXhwIjoxNjk3NzgzODkwLCJpYXQiOjE2OTc3NTUwOTB9.SbTF7TzHehWG4WsyqW6wViOg4zFPjkGL-Z7PCgwm9-o"
-result = get_sleep(access_token, '2023-10-01', '2023-10-19')
-# result = get_water_consumption(access_token, '2023-10-01', '2023-10-19')
-print(result)
 
-# result = get_steps(access_token, '2023-10-01', '2023-10-19')
-# print(result)
+if __name__ == "__main__":
 
-# result = get_water_consumption(access_token, '2023-10-01', '2023-10-19')
-# print(result)
+    # print(generate_date_range("2023-09-25", "2023-10-19"))
+    # exit()
+
+    # access_token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM1I4WkwiLCJzdWIiOiJCUVZIWDMiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJyc29jIHJzZXQgcmFjdCBybG9jIHJ3ZWkgcmhyIHJwcm8gcm51dCByc2xlIiwiZXhwIjoxNjk3NzgzODkwLCJpYXQiOjE2OTc3NTUwOTB9.SbTF7TzHehWG4WsyqW6wViOg4zFPjkGL-Z7PCgwm9-o"
+    # result = get_sleep(access_token, '2023-10-01', '2023-10-19')
+    # # result = get_water_consumption(access_token, '2023-10-01', '2023-10-19')
+    # print(result)
+
+    # # result = get_steps(access_token, '2023-10-01', '2023-10-19')
+    # # print(result)
+
+    # # result = get_water_consumption(access_token, '2023-10-01', '2023-10-19')
+    # # print(result)
+    pass
 
 

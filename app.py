@@ -1,4 +1,4 @@
-import os
+import os,datetime
 
 from fitbit import (generate_code_verifier, generate_code_challenge, generate_state,
                      get_sleep, get_water_consumption, get_body_fat, get_steps, get_activeness,
@@ -73,26 +73,34 @@ def get_tokens():
 
 @app.route("/fetch_and_submit_to_contract", methods=["POST"])
 def fetch_and_submit_to_contract():
+
     
     scopes = request.json['scopes']
     enrolled_challenges = request.json['enrolled_challenges']
-    user_tier = request.json['user_tier']
     username = request.json['username']
     access_token = request.json['access_token']
     contract_address = request.json['contract_address']
     abi = request.json['abi']
+
+    print(enrolled_challenges)
     
-    # actual_challenges = [
-    # ]
-    # Get the data from Fitbit
+    
     if not enrolled_challenges:
         return jsonify({"message": "No challenges enrolled, No action performed"}), 200
     
-    enrolled_challenges_int = [CHALLENGE_MAPPING[challenge["type"]] for challenge in enrolled_challenges]   
+    enrolled_challenges_int = [CHALLENGE_MAPPING[challenge["type"]] for challenge in enrolled_challenges]
+    print(enrolled_challenges_int)   
     verification_values = get_challenge_verification_values(enrolled_challenges_int, contract_address, abi)
-    # print(enrolled_challenges_int)
+    print(verification_values)
     
+    # exit()
     for challenge in enrolled_challenges:
+        tier = challenge["tier"]
+        type_int = int(CHALLENGE_MAPPING[challenge["type"]])
+
+        verification_tiervalue = verification_values[type_int]["tier" + str(tier)]
+        # print(tiervalue)
+        # exit()
         if challenge["type"] == "sleep":
             try:
                 sleep_data = get_sleep(access_token, challenge["start_duration"], challenge["end_duration"])
@@ -100,17 +108,30 @@ def fetch_and_submit_to_contract():
             except:
                 return jsonify({"message": "Encountered a problem fetching sleep data"}), 400
 
-            completions, streaks = get_completed_challenge_entries_and_streaks(sleep_data, verification_values[CHALLENGE_MAPPING[challenge["type"]]]["tier"], challenge["start_duration"], challenge["end_duration"])
+            completions, streaks = get_completed_challenge_entries_and_streaks(sleep_data, verification_tiervalue, challenge["start_duration"], challenge["end_duration"])
             print(completions, streaks)
+
         elif challenge["type"] == "water":
+            print("huh")
             try:
-                water_data = get_water_consumption(access_token, challenge["start_duration"], challenge["end_duration"])
+                response, success = get_water_consumption(access_token, challenge["start_duration"], challenge["end_duration"])
+                if not success:
+                    print(response)
+                    return jsonify({"message": "Encountered a problem fetching water data, had to do with the request"}), 400
+                
+                water_data = response
                 print(water_data)
-            except:
-                return jsonify({"message": "Encountered a problem fetching water data"}), 400
+            except Exception as e:
+                print(e)
+                return jsonify({"message": "Encountered a problem fetching water data something else"}), 400
             
-            completions, streaks = get_completed_challenge_entries_and_streaks(water_data, verification_values[CHALLENGE_MAPPING[challenge["type"]]]["tier"], challenge["start_duration"], challenge["end_duration"])
+            completions, streaks = get_completed_challenge_entries_and_streaks(water_data, verification_tiervalue, challenge["start_duration"], challenge["end_duration"])
             print(completions, streaks)
+
+            timestamp = int(datetime.datetime.now().timestamp() * 1000)
+            receipt = submit_completed_challenges(abi, contract_address, username, type_int, completions, streaks, timestamp, completions == streaks)
+            print(receipt)
+
 
         elif challenge["type"] == "bodyfat":
             try:
@@ -119,7 +140,7 @@ def fetch_and_submit_to_contract():
             except:
                 return jsonify({"message": "Encountered a problem fetching body fat data"}), 400
             
-            completions, streaks = get_completed_challenge_entries_and_streaks(body_fat_data, verification_values[CHALLENGE_MAPPING[challenge["type"]]]["tier"], challenge["start_duration"], challenge["end_duration"])
+            completions, streaks = get_completed_challenge_entries_and_streaks(body_fat_data, verification_tiervalue, challenge["start_duration"], challenge["end_duration"])
             print(completions, streaks)
 
         elif challenge["type"] == "steps":
@@ -129,7 +150,7 @@ def fetch_and_submit_to_contract():
             except:
                 return jsonify({"message": "Encountered a problem fetching steps data"}), 400
             
-            completions, streaks = get_completed_challenge_entries_and_streaks(steps_data, verification_values[CHALLENGE_MAPPING[challenge["type"]]]["tier"], challenge["start_duration"], challenge["end_duration"])
+            completions, streaks = get_completed_challenge_entries_and_streaks(steps_data, verification_tiervalue, challenge["start_duration"], challenge["end_duration"])
             print(completions, streaks)
 
         elif challenge["type"] == "activity":
@@ -139,8 +160,10 @@ def fetch_and_submit_to_contract():
             except:
                 return jsonify({"message": "Encountered a problem fetching activeness data"}), 400  
             
-            completions, streaks = get_completed_challenge_entries_and_streaks(activeness_data, verification_values[CHALLENGE_MAPPING[challenge["type"]]]["tier"], challenge["start_duration"], challenge["end_duration"])
+            completions, streaks = get_completed_challenge_entries_and_streaks(activeness_data, verification_tiervalue, challenge["start_duration"], challenge["end_duration"])
             print(completions, streaks)
+
+        return jsonify({"message": "Success"}), 200
 
 
 if __name__ == '__main__':
