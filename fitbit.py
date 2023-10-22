@@ -31,6 +31,36 @@ def generate_state() -> str:
 # def is_valid_bodyfat_completion(value, tier, tier_completion_value):
 #     if tier 
 
+def generate_date_range(start_date_str, end_date_str):
+    # Convert the date strings to datetime objects
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+
+    # Check if start_date is after end_date
+    if start_date > end_date:
+        raise ValueError("Start date should be before or the same as the end date.")
+
+    # Generate the list of dates
+    date_list = []
+    current_date = start_date
+    while current_date <= end_date:
+        date_list.append(current_date.strftime('%Y-%m-%d'))
+        current_date += timedelta(days=1)  # Move to the next day
+
+    return date_list
+
+def get_completed_challenge_entries_and_streaks(activity_data, verification_value, start_date, end_date):
+    completed_num = 0
+    streak_num = 0
+    for _date in generate_date_range(start_date, end_date):
+        if int(float(activity_data.get(_date, 0))) >= verification_value:
+            completed_num += 1
+            streak_num += 1
+        else:
+            streak_num = 0
+
+    return completed_num, streak_num
+
 def get_body_fat(access_token, startdate, enddate):
     resource_url = f"{fitbit_base_url}/body/log/fat/date/{startdate}/{enddate}.json/"
 
@@ -43,11 +73,14 @@ def get_body_fat(access_token, startdate, enddate):
     response = requests.get(resource_url, headers=headers)
 
     # Ensure the response is successful before decoding JSON
-    response.raise_for_status()
+    if response.status_code != 200:
+        return response.json(), False
+    # response.raise_for_status()
 
-    return {k["date"]: k["fat"] for k in response.json()["fat"] }
+    return {k["date"]: k["fat"] for k in response.json()["fat"] }, True
 
 def get_water_consumption(access_token, startdate, enddate):
+    print("here?", "yes")
     resource_url = f"{fitbit_base_url}/foods/log/water/date/{startdate}/{enddate}.json/"
 
     headers = {
@@ -55,13 +88,19 @@ def get_water_consumption(access_token, startdate, enddate):
         'Authorization': f'Bearer {access_token}',
         'Accept': 'application/json'
     }
+    print("here?")
+    
 
     response = requests.get(resource_url, headers=headers)
 
+    print(response.text)
     # Ensure the response is successful before decoding JSON
-    response.raise_for_status()
 
-    return {k["dateTime"]: k["value"] for k in response.json()["foods-log-water"] }
+    if response.status_code != 200:
+        return response.json(), False
+    # response.raise_for_status()
+
+    return {k["dateTime"]: k["value"] for k in response.json()["foods-log-water"] }, True
 
 
 def get_sleep(access_token, startdate, enddate):
@@ -76,9 +115,11 @@ def get_sleep(access_token, startdate, enddate):
     response = requests.get(resource_url, headers=headers)
 
     # Ensure the response is successful before decoding JSON
-    response.raise_for_status()
+    if response.status_code != 200:
+        return response.json(), False
+    # response.raise_for_status()
 
-    return {k["endTime"].split("T")[0]: k["minutesAsleep"] for k in response.json()["sleep"]}
+    return {k["endTime"].split("T")[0]: k["minutesAsleep"] for k in response.json()["sleep"]}, True
 
 def get_steps(access_token, startdate, enddate):
     resource_url = f"{fitbit_base_url}/activities/steps/date/{startdate}/{enddate}.json"
@@ -90,9 +131,11 @@ def get_steps(access_token, startdate, enddate):
     }
 
     response = requests.get(resource_url, headers=headers)
-    response.raise_for_status()
+    if response.status_code != 200:
+        return response.json(), False
+    # response.raise_for_status()
 
-    return {k["dateTime"]: k["value"] for k in response.json()["activities-steps"] }
+    return {k["dateTime"]: k["value"] for k in response.json()["activities-steps"] }, True
 
 
 def get_activeness(access_token, startdate, enddate):
@@ -116,48 +159,18 @@ def get_activeness(access_token, startdate, enddate):
         for entry in activeness[active_type]["activities-" + active_type]:
             sum_entry[entry["dateTime"]] = int(entry["value"]) + sum_entry[entry["dateTime"]]
 
-    return sum_entry
-
-def generate_date_range(start_date_str, end_date_str):
-    # Convert the date strings to datetime objects
-    start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-    end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-    # Check if start_date is after end_date
-    if start_date > end_date:
-        raise ValueError("Start date should be before or the same as the end date.")
-
-    # Generate the list of dates
-    date_list = []
-    current_date = start_date
-    while current_date <= end_date:
-        date_list.append(current_date.strftime('%Y-%m-%d'))
-        current_date += timedelta(days=1)  # Move to the next day
-
-    return date_list
-
-def get_completed_challenge_entries_and_streaks(activity_data, verification_value, start_date, end_date):
-    completed_num = 0
-    streak_num = 0
-    for _date in generate_date_range(start_date, end_date):
-        if activity_data.get(_date, 0) >= verification_value:
-            completed_num += 1
-            streak_num += 1
-        else:
-            streak_num = 0
-
-    return completed_num, streak_num
-
+    
+    return sum_entry, True
 
 if __name__ == "__main__":
 
     # print(generate_date_range("2023-09-25", "2023-10-19"))
     # exit()
 
-    # access_token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM1I4WkwiLCJzdWIiOiJCUVZIWDMiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJyc29jIHJzZXQgcmFjdCBybG9jIHJ3ZWkgcmhyIHJwcm8gcm51dCByc2xlIiwiZXhwIjoxNjk3NzgzODkwLCJpYXQiOjE2OTc3NTUwOTB9.SbTF7TzHehWG4WsyqW6wViOg4zFPjkGL-Z7PCgwm9-o"
-    # result = get_sleep(access_token, '2023-10-01', '2023-10-19')
-    # # result = get_water_consumption(access_token, '2023-10-01', '2023-10-19')
-    # print(result)
+    access_token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIyM1I4WkwiLCJzdWIiOiJCUVZIWDMiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJyc29jIHJhY3QgcndlaSBycHJvIHJudXQgcnNsZSIsImV4cCI6MTY5Nzg2MDQyOCwiaWF0IjoxNjk3ODMxNjI4fQ.GAVIJR1NEGp8EGj5jOXGGHexKexrPmCbVeaSwT3LLqE"
+    #     # result = get_sleep(access_token, '2023-10-01', '2023-10-19')
+    result = get_water_consumption(access_token, '2023-10-01', '2023-10-19')
+    print(result)
 
     # # result = get_steps(access_token, '2023-10-01', '2023-10-19')
     # # print(result)

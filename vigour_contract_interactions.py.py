@@ -31,11 +31,11 @@ def get_challenge_verification_values(challenge_types, contract_address, abi):
 # exit()
 
 
-def submit_completed_challenges(abi, contract_address, username, challengetype, newCompletionsnum, continueStreak, streaknumber, data_url=""):
+def submit_completed_challenges(abi, contract_address, username, challengetype, newCompletionsnum, streaknumber, timestamp, continueStreak):
 
     vigour_contract = w3.eth.contract(address=contract_address, abi=abi)
 
-    args = [username, challengetype, newCompletionsnum, continueStreak, streaknumber, data_url]
+    args = [username, challengetype, newCompletionsnum, streaknumber, timestamp,continueStreak]
     txn = vigour_contract.functions.updateUserChallengesState(*args).build_transaction({
         "chainId": 534351,
         "gas": 70000,
@@ -53,13 +53,13 @@ def submit_completed_challenges(abi, contract_address, username, challengetype, 
     print(txn_receipt)
     return txn_receipt
 
-abi = json.load(open("contract_abi.json"))
-print(abi[0])
+# abi = json.load(open("contract_abi.json"))
+# print(abi[0])
 
-submit_completed_challenges(abi,
-    "0x7992DA49ab6Ed2617458c851fAcde877B85D44D4",
-    "tom",
-    3,
-    2,
-    True,
-    2,)
+# submit_completed_challenges(abi,
+#     "0x7992DA49ab6Ed2617458c851fAcde877B85D44D4",
+#     "tom",
+#     3,
+#     2,
+#     True,
+#     2,)
